@@ -16,6 +16,8 @@ public class SecurityConfig {
         // 2. Form 로그인 설정
         http.formLogin()
                 .loginPage("/loginForm")
+                .usernameParameter("un")
+                .passwordParameter("pw")
                 .loginProcessingUrl("/login") // Post + X-WWW-FormUrlEncoded
                 .defaultSuccessUrl("/")
                 .successHandler((req, resp, authenication) -> {
