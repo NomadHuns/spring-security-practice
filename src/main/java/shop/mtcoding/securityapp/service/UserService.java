@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import shop.mtcoding.securityapp.dto.UserRequest;
+import shop.mtcoding.securityapp.dto.UserResponse;
 import shop.mtcoding.securityapp.model.User;
 import shop.mtcoding.securityapp.model.UserRepository;
 
@@ -25,10 +26,11 @@ public class UserService {
      * 5. ResponseDTO 응답하기
      */
     @Transactional
-    public User 회원가입(UserRequest.JoinDTO joinDTO) {
+    public UserResponse.JoinDTO 회원가입(UserRequest.JoinDTO joinDTO) {
         String rawPassword = joinDTO.getPassword();
         String encPassword = passwordEncoder.encode(rawPassword); // 60Byte로 암호화
         joinDTO.setPassword(encPassword);
-        return userRepository.save(joinDTO.toEntity());
+        User userPS = userRepository.save(joinDTO.toEntity());
+        return new UserResponse.JoinDTO(userPS);
     }
 }
