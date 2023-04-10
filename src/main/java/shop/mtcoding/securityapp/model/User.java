@@ -25,6 +25,7 @@ public class User {
     private String username;
     private String password;
     private String email;
+    private String role;
     private Boolean status;
     private LocalDateTime createdAt; // LocalDateTime -> Timestamp 타입으로 자동으로 변환시켜준다.
     private LocalDateTime updatedAt;
@@ -40,12 +41,13 @@ public class User {
     }
 
     @Builder
-    public User(Long id, String username, String password, String email, Boolean status, LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
+    public User(Long id, String username, String password, String email, String role, Boolean status,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
+        this.role = role;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
