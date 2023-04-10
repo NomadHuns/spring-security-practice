@@ -1,5 +1,8 @@
 package shop.mtcoding.securityapp.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ResponseDTO<T> {
     private Integer status; // 상태코드
     private String msg; // 제목

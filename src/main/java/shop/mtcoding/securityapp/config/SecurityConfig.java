@@ -22,12 +22,13 @@ public class SecurityConfig {
         // 2. Form 로그인 설정
         http.formLogin()
                 .loginPage("/loginForm")
-                .usernameParameter("un")
-                .passwordParameter("pw")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .loginProcessingUrl("/login") // Post + X-WWW-FormUrlEncoded
-                .defaultSuccessUrl("/")
+                // .defaultSuccessUrl("/")
                 .successHandler((req, resp, authenication) -> {
                     System.out.println("디버그 : 로그인이 완료되었습니다.");
+                    resp.sendRedirect("/");
                 })
                 .failureHandler((req, resp, ex) -> {
                     System.out.println("디버그 : 로그인 실패 -> " + ex.getMessage());
