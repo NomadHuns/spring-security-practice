@@ -1,11 +1,14 @@
 package shop.mtcoding.securityapp.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import lombok.RequiredArgsConstructor;
+import shop.mtcoding.securityapp.core.auth.MyUserDetails;
 import shop.mtcoding.securityapp.dto.ResponseDTO;
 import shop.mtcoding.securityapp.dto.UserRequest;
 import shop.mtcoding.securityapp.dto.UserResponse;
@@ -16,6 +19,13 @@ import shop.mtcoding.securityapp.service.UserService;
 public class HelloController {
 
     private final UserService userService;
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> userCheck(@PathVariable Long id, @AuthenticationPrincipal MyUserDetails myUserDetails) {
+        String username = myUserDetails.getUser().getUsername();
+        String role = myUserDetails.getUser().getRole();
+        return ResponseEntity.ok().body(username + " : " + role);
+    }
 
     @GetMapping("/")
     public ResponseEntity<?> hello() {
