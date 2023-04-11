@@ -2,15 +2,19 @@ package shop.mtcoding.securityapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.extern.slf4j.Slf4j;
+import shop.mtcoding.securityapp.core.jwt.JwtAuthorizationFilter;
 
 @Configuration
 @Slf4j
@@ -19,6 +23,19 @@ public class SecurityConfig {
     @Bean
     BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // JWT 필터 등록이 필요함
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity> {
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+            JwtAuthorizationFilter jwtAuthorizationFilter = new JwtAuthorizationFilter(authenticationManager);
+
+            // "/users/**" 패턴에 대해 필터를 등록
+            builder.addFilterAt(jwtAuthorizationFilter, BasicAuthenticationFilter.class);
+            super.configure(builder);
+        }
     }
 
     @Bean
@@ -38,13 +55,13 @@ public class SecurityConfig {
         // 5. form 로긴 해제
         http.formLogin().disable();
 
-        // 6. httpBasic 정책 해제
+        // 6. httpBasic 정책 해제 (BasicAuthenticationFilter 해제)
         http.httpBasic().disable();
 
         // 7. XSS (lucy 필터)
 
         // 8. 커스텀 필터 적용 (시큐리티 필터 교환)
-        // http.apply(null);
+        http.apply(new CustomSecurityFilterManager());
 
         // 9. 인증 실패 처리
         http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
@@ -66,7 +83,7 @@ public class SecurityConfig {
 
         // 11. 인증, 권한 필터 설정
         http.authorizeRequests((authorize) -> {
-            authorize.antMatchers("/user/**").authenticated() // /user url은 인증, 권한 검사 필요
+            authorize.antMatchers("/users/**").authenticated() // /user url은 인증, 권한 검사 필요
                     .antMatchers("/manager/**").access("hasRole('ADMIN') or hasRole('MANAGER')")
                     .antMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest().permitAll(); // 그 외의 모든 요청은 인증, 권한 검사 필요 없음.

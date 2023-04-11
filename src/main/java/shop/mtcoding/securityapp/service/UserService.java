@@ -1,10 +1,13 @@
 package shop.mtcoding.securityapp.service;
 
+import java.util.Optional;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import shop.mtcoding.securityapp.core.jwt.MyJwtProvider;
 import shop.mtcoding.securityapp.dto.UserRequest;
 import shop.mtcoding.securityapp.dto.UserResponse;
 import shop.mtcoding.securityapp.model.User;
@@ -32,5 +35,19 @@ public class UserService {
         joinDTO.setPassword(encPassword);
         User userPS = userRepository.save(joinDTO.toEntity());
         return new UserResponse.JoinDTO(userPS);
+    }
+
+    public String 로그인(UserRequest.LoginDTO loginDTO) {
+        Optional<User> userOP = userRepository.findByUsername(loginDTO.getUsername());
+        if (userOP.isPresent()) {
+            User userPS = userOP.get();
+            if (passwordEncoder.matches(loginDTO.getPassword(), userPS.getPassword())) {
+                String jwt = MyJwtProvider.create(userPS);
+                return jwt;
+            }
+            throw new RuntimeException("비밀번호 틀림");
+        } else {
+            throw new RuntimeException("유저네임 틀림");
+        }
     }
 }

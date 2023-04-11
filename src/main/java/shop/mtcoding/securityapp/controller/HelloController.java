@@ -1,15 +1,18 @@
 package shop.mtcoding.securityapp.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import lombok.RequiredArgsConstructor;
 import shop.mtcoding.securityapp.core.auth.MyUserDetails;
+import shop.mtcoding.securityapp.core.jwt.MyJwtProvider;
 import shop.mtcoding.securityapp.dto.ResponseDTO;
 import shop.mtcoding.securityapp.dto.UserRequest;
 import shop.mtcoding.securityapp.dto.UserResponse;
@@ -30,14 +33,15 @@ public class HelloController {
 
     @GetMapping("/users/{id}")
     public ResponseEntity<?> userCheck(@PathVariable Long id, @AuthenticationPrincipal MyUserDetails myUserDetails) {
-        String username = myUserDetails.getUser().getUsername();
-        String role = myUserDetails.getUser().getRole();
-        return ResponseEntity.ok().body(username + " : " + role);
+        // String username = myUserDetails.getUser().getUsername();
+        // String role = myUserDetails.getUser().getRole();
+        return ResponseEntity.ok().body("gg");
     }
 
     @GetMapping("/")
     public ResponseEntity<?> hello() {
         System.out.println("테스트 : " + name);
+
         return ResponseEntity.ok().body("ok");
     }
 
@@ -61,8 +65,10 @@ public class HelloController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login() {
-
-        return ResponseEntity.ok().body("로그인 완료");
+    public ResponseEntity<?> login(@RequestBody UserRequest.LoginDTO loginDTO) {
+        String jwt = userService.로그인(loginDTO);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(MyJwtProvider.HEADER, jwt);
+        return ResponseEntity.ok().headers(headers).body("로그인 완료");
     }
 }

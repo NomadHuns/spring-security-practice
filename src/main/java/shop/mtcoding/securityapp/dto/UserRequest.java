@@ -24,4 +24,19 @@ public class UserRequest {
                     .build();
         }
     }
+
+    @Getter
+    @Setter
+    public static class LoginDTO {
+        private String username;
+        private String password;
+
+        public User toEntity() {
+            return User.builder()
+                    .username(username)
+                    .password(password)
+                    .status(true)
+                    .build();
+        }
+    }
 }
