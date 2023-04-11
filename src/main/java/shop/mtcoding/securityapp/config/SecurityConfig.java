@@ -2,7 +2,6 @@ package shop.mtcoding.securityapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,7 +10,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
+@Slf4j
 public class SecurityConfig {
 
     @Bean
@@ -39,24 +41,30 @@ public class SecurityConfig {
         // 6. httpBasic 정책 해제
         http.httpBasic().disable();
 
-        // XSS (lucy 필터)
+        // 7. XSS (lucy 필터)
 
-        // 3. Form 로그인 설정
-        http.formLogin()
-                .loginPage("/loginForm")
-                .usernameParameter("username")
-                .passwordParameter("password")
-                .loginProcessingUrl("/login") // Post + X-WWW-FormUrlEncoded
-                // .defaultSuccessUrl("/")
-                .successHandler((req, resp, authenication) -> {
-                    System.out.println("디버그 : 로그인이 완료되었습니다.");
-                    resp.sendRedirect("/");
-                })
-                .failureHandler((req, resp, ex) -> {
-                    System.out.println("디버그 : 로그인 실패 -> " + ex.getMessage());
-                });
+        // 8. 커스텀 필터 적용 (시큐리티 필터 교환)
+        // http.apply(null);
 
-        // 4. 인증, 권한 필터 설정
+        // 9. 인증 실패 처리
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+            log.trace("디버그 : 인증 실패 : " + authException.getMessage());
+            log.debug("디버그 : 인증 실패 : " + authException.getMessage());
+            log.info("디버그 : 인증 실패 : " + authException.getMessage());
+            log.warn("디버그 : 인증 실패 : " + authException.getMessage());
+            log.error("디버그 : 인증 실패 : " + authException.getMessage());
+        });
+
+        // 10. 권한 실패 처리
+        http.exceptionHandling().accessDeniedHandler((request, response, accessDeniedException) -> {
+            log.trace("디버그 : 권한 실패 : " + accessDeniedException.getMessage());
+            log.debug("디버그 : 권한 실패 : " + accessDeniedException.getMessage());
+            log.info("디버그 : 권한 실패 : " + accessDeniedException.getMessage());
+            log.warn("디버그 : 권한 실패 : " + accessDeniedException.getMessage());
+            log.error("디버그 : 권한 실패 : " + accessDeniedException.getMessage());
+        });
+
+        // 11. 인증, 권한 필터 설정
         http.authorizeRequests((authorize) -> {
             authorize.antMatchers("/user/**").authenticated() // /user url은 인증, 권한 검사 필요
                     .antMatchers("/manager/**").access("hasRole('ADMIN') or hasRole('MANAGER')")
@@ -68,7 +76,7 @@ public class SecurityConfig {
     }
 
     public CorsConfigurationSource configurationSource() {
-        System.out.println("디버그 : configurationSource cors 설정이 SecurityFilterChain에 등록됨");
+        log.debug("디버그 : configurationSource cors 설정이 SecurityFilterChain에 등록됨");
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*"); // 모든 헤더를 허용
         configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE (Javascript 요청 허용)

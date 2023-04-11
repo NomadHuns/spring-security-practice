@@ -15,6 +15,10 @@ import shop.mtcoding.securityapp.dto.UserRequest;
 import shop.mtcoding.securityapp.dto.UserResponse;
 import shop.mtcoding.securityapp.service.UserService;
 
+/*
+ * 로그 레벨 : trace, debug, info, warn, error
+ */
+
 @Controller
 @RequiredArgsConstructor
 public class HelloController {
@@ -54,5 +58,11 @@ public class HelloController {
         UserResponse.JoinDTO data = userService.회원가입(joinDTO);
         ResponseDTO<?> responseDTO = new ResponseDTO<>().data(data);
         return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login() {
+
+        return ResponseEntity.ok().body("로그인 완료");
     }
 }
