@@ -1,5 +1,6 @@
 package shop.mtcoding.securityapp.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,9 @@ public class HelloController {
 
     private final UserService userService;
 
+    @Value("${meta.name}")
+    private String name;
+
     @GetMapping("/users/{id}")
     public ResponseEntity<?> userCheck(@PathVariable Long id, @AuthenticationPrincipal MyUserDetails myUserDetails) {
         String username = myUserDetails.getUser().getUsername();
@@ -29,7 +33,7 @@ public class HelloController {
 
     @GetMapping("/")
     public ResponseEntity<?> hello() {
-
+        System.out.println("테스트 : " + name);
         return ResponseEntity.ok().body("ok");
     }
 
